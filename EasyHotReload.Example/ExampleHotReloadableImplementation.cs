@@ -2,7 +2,7 @@ namespace EasyHotReload.Example;
 
 using EasyHotReload;
 
-public class HotReloadableImplementation : IHotReloadable, IDisposable
+public class ExampleHotReloadableImplementation : IHotReloadable, IDisposable
 {
     private int Value { get; set; } = 1;
     
