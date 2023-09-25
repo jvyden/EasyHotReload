@@ -7,20 +7,30 @@ namespace EasyHotReload;
 /// </summary>
 public static class HotReloadRegistry
 {
+    /// <summary>
+    /// The list of objects to notify when a hot reload occurs.
+    /// </summary>
     private static readonly List<IHotReloadable> HotReloadableObjects = new(1);
+    /// <summary>
+    /// A lock object, used to make this thread-safe.
+    /// </summary>
+    private static readonly object ListLock = new();
 
     internal static void ProcessHotReload()
     {
-        Debug.WriteLine($"Processing {HotReloadableObjects.Count} reloadable objects");
-        int i = 0;
-        foreach (IHotReloadable reloadable in HotReloadableObjects)
+        lock (ListLock)
         {
-            i++;
-            Debug.WriteLine($"  ({i}/{HotReloadableObjects.Count}) Reloading {reloadable.GetType().Name}...");
-            reloadable.ProcessHotReload();
-        }
+            Debug.WriteLine($"Processing {HotReloadableObjects.Count} reloadable objects");
+            int i = 0;
+            foreach (IHotReloadable reloadable in HotReloadableObjects)
+            {
+                i++;
+                Debug.WriteLine($"  ({i}/{HotReloadableObjects.Count}) Reloading {reloadable.GetType().Name}...");
+                reloadable.ProcessHotReload();
+            }
         
-        Debug.WriteLine("Done hot reloading.");
+            Debug.WriteLine("Done hot reloading.");
+        }
     }
 
     /// <summary>
@@ -28,14 +38,20 @@ public static class HotReloadRegistry
     /// </summary>
     public static void RegisterReloadable(IHotReloadable reloadable)
     {
-        HotReloadableObjects.Add(reloadable);
+        lock (ListLock)
+        {
+            HotReloadableObjects.Add(reloadable);
+        }
     }
 
     /// <summary>
     /// Remove a reloadable object from the registry. Call this when the object is disposed or collected.
     /// </summary>
-    public static void UnregisterReloadable(IHotReloadable reloadable)
+    public static bool UnregisterReloadable(IHotReloadable reloadable)
     {
-        HotReloadableObjects.Remove(reloadable);
+        lock (ListLock)
+        {
+            return HotReloadableObjects.Remove(reloadable);
+        }
     }
 }
