@@ -3,7 +3,8 @@ using System.Diagnostics;
 namespace EasyHotReload;
 
 /// <summary>
-/// A registry containing objects that can be hot reloaded.
+/// The registry of objects that can be hot reloaded.
+/// Call RegisterReloadable to initialize an object into the registry, and call UnregisterReloadable when the object is disposed or otherwise collected.
 /// </summary>
 public static class HotReloadRegistry
 {
@@ -45,8 +46,11 @@ public static class HotReloadRegistry
     }
 
     /// <summary>
-    /// Remove a reloadable object from the registry. Call this when the object is disposed or collected.
+    /// Remove a reloadable object from the registry. Call this when the object is disposed or otherwise collected.
     /// </summary>
+    /// <returns>
+    /// true if item is successfully removed; otherwise, false. This method also returns false if item was not found in the internal list.
+    /// </returns>
     public static bool UnregisterReloadable(IHotReloadable reloadable)
     {
         lock (ListLock)
