@@ -35,3 +35,6 @@ using ExampleHotReloadableImplementation reloadableImplementation = new();
 // It's also good practice to UnregisterReloadable to avoid null reference problems. This is done in the implementation via IDisposable.
 HotReloadRegistry.RegisterReloadable(reloadableImplementation);
 ```
+
+The registry is thread-safe, so don't worry about calling from multiple threads.
+Just beware that hot reload events can come through any of the ThreadPool worker threads.
